@@ -3,7 +3,7 @@ const { getChannel } = require('../amqp')
 
 module.exports = async ({ exchangePing = `ex-ping`, exchangePong = `ex-pong` }) => {
     const ch = await getChannel()
-    await ch.assertExchange(exchangePing)
+    await ch.assertExchange(exchangePing, 'topic')
     setChannel(ch)
         .sendMessagesToExchange(exchangePing, exchangePong)
 }
@@ -11,12 +11,15 @@ module.exports = async ({ exchangePing = `ex-ping`, exchangePong = `ex-pong` }) 
 
 const setChannel = ch => ({ 
     sendMessagesToExchange: async (exchangePing, exchangePong) => {
-        await ping(ch, exchangePing)
+
+        setInterval(() => {
+            ping(ch, exchangePing)
+        }, 1000)
 
         const queue = 'q-pong'
 
         await ch.assertQueue(queue)
-        await ch.assertExchange(exchangePong)
+        await ch.assertExchange(exchangePong, 'topic')
         await ch.bindQueue(queue, exchangePong)
 
         ch.prefetch(1)
@@ -53,7 +56,7 @@ class Consumer {
         await this.sleep(1000)
         await this.ch.ack(msg)
 
-        await ping(this.ch, this.exchangePing)
+        // await ping(this.ch, this.exchangePing)
     }
 }
 

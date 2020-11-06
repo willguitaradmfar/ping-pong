@@ -3,7 +3,7 @@ const { getChannel } = require('../amqp')
 
 module.exports = async ({ exchangePing = `ex-ping`, exchangePong = `ex-pong` }) => {
     const ch = await getChannel()
-    await ch.assertExchange(exchangePong)
+    await ch.assertExchange(exchangePong, 'topic')
     setChannel(ch)
         .sendMessagesToExchange(exchangePing, exchangePong)
 }
@@ -14,7 +14,7 @@ const setChannel = ch => ({
         const queue = 'q-ping'
 
         await ch.assertQueue(queue)
-        await ch.assertExchange(exchangePing)
+        await ch.assertExchange(exchangePing, 'topic')
         await ch.bindQueue(queue, exchangePing)
 
         ch.prefetch(1)
