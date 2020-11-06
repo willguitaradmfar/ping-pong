@@ -1,0 +1,16 @@
+{
+  "name": "ping-pong",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "ping": "INIT=ping node src/index.js",
+    "pong": "INIT=pong node src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.6.0",
+    "dotenv": "^8.2.0"
+  }
+}
