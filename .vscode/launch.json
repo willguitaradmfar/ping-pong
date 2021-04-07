@@ -23,6 +23,17 @@
             },
             "program": "${workspaceFolder}/src/index.js",
             "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "RabbitMQ - only-consumer",
+            "env": {
+                "INIT": "only-consumer",
+                "AMQP_EXCHANGE_CONSUMER": "exchange-pong"
+            },
+            "program": "${workspaceFolder}/src/index.js",
+            "console": "integratedTerminal"
         }
     ]
 }
