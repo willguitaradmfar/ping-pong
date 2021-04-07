@@ -1,9 +1,9 @@
 const { getChannel } = require('../amqp')
 
 
-module.exports = async ({ exchangePing = `ex-ping`, exchangePong = `ex-pong` }) => {
+module.exports = async ({ exchangePing = process.env.AMQP_EXCHANGE_PING, exchangePong = process.env.AMQP_EXCHANGE_PONG }) => {
     const ch = await getChannel()
-    await ch.assertExchange(exchangePong, 'topic')
+    await ch.assertExchange(exchangePong, process.env.AMQP_DEFAULT_TYPE_EXCHANGE)
     setChannel(ch)
         .sendMessagesToExchange(exchangePing, exchangePong)
 }
@@ -14,7 +14,7 @@ const setChannel = ch => ({
         const queue = 'q-ping'
 
         await ch.assertQueue(queue)
-        await ch.assertExchange(exchangePing, 'topic')
+        await ch.assertExchange(exchangePing, process.env.AMQP_DEFAULT_TYPE_EXCHANGE)
         await ch.bindQueue(queue, exchangePing)
 
         ch.prefetch(1)
@@ -26,8 +26,8 @@ const setChannel = ch => ({
     }
 })
 
-const ping = async (ch, exchange) => {
-    const message = `...P O N G...`
+const pong = async (ch, exchange, msg) => {
+    const message = `...P O N G... (${msg.content.toString()})`
     await ch.publish(exchange, '', Buffer.from(message))
     await ch.waitForConfirms()
 }
@@ -47,10 +47,10 @@ class Consumer {
 
     async process (msg) {
         console.log(`Respondendo soliciação ....`)
-        await this.sleep(1000)
+        // await this.sleep(1000)
         await this.ch.ack(msg)
 
-        await ping(this.ch, this.exchangePong)
+        await pong(this.ch, this.exchangePong, msg)
     }
 }
 
